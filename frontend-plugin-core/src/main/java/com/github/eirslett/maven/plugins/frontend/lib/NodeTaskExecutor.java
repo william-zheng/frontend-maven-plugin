@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 import static com.github.eirslett.maven.plugins.frontend.lib.Utils.*;
 
 abstract class NodeTaskExecutor {
-    private final Logger logger;
-    private final String taskName;
-    private final String taskLocation;
-    private final Platform platform;
-    private final File workingDirectory;
-    private final List<String> additionalArguments;
+    protected final Logger logger;
+    protected final String taskName;
+    protected final String taskLocation;
+    protected final Platform platform;
+    protected final File workingDirectory;
+    protected final List<String> additionalArguments;
 
     public NodeTaskExecutor(String taskName, String taskLocation, File workingDirectory, Platform platform, List<String> additionalArguments) {
         this.logger = LoggerFactory.getLogger(getClass());
@@ -27,7 +27,7 @@ abstract class NodeTaskExecutor {
         this.additionalArguments = additionalArguments;
     }
 
-    public final void execute(String args) throws TaskRunnerException {
+    public void execute(String args) throws TaskRunnerException {
         final String absoluteTaskLocation = workingDirectory + normalize(taskLocation);
         final List<String> arguments = getArguments(args);
         logger.info("Running " + taskToString(taskName, arguments) + " in " + workingDirectory);
@@ -42,7 +42,7 @@ abstract class NodeTaskExecutor {
         }
     }
 
-    private List<String> getArguments(String args) {
+    protected List<String> getArguments(String args) {
         List<String> arguments =  new ArrayList<String>();
         if(args != null && !args.equals("null") && !args.isEmpty()) {
             arguments.addAll(Arrays.asList(args.split("\\s+")));
@@ -56,7 +56,7 @@ abstract class NodeTaskExecutor {
         return arguments;
     }
 
-    private static String taskToString(String taskName, List<String> commands) {
+    protected static String taskToString(String taskName, List<String> commands) {
         return "'" + taskName + " " + implode(" ",commands) + "'";
     }
 }

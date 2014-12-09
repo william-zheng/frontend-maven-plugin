@@ -16,6 +16,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
+import static com.github.eirslett.maven.plugins.frontend.mojo.MojoUtils.existsSourceDir;
 import static com.github.eirslett.maven.plugins.frontend.mojo.MojoUtils.setSLF4jLogger;
 
 @Mojo(name="npm",  defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
@@ -39,9 +40,13 @@ public final class NpmMojo extends AbstractMojo {
     @Component
     private BuildContext buildContext;
 
+    @Parameter(defaultValue = "${basedir}/src/main/webapp", property = "fisBase")
+    private File fisBase;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File packageJson = new File(workingDirectory, "package.json");
+        if (!existsSourceDir(fisBase)) return;
         if (buildContext == null || buildContext.hasDelta(packageJson) || !buildContext.isIncremental()) {
             try {
                 setSLF4jLogger(getLog());

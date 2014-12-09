@@ -13,8 +13,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import static com.github.eirslett.maven.plugins.frontend.mojo.MojoUtils.existsSourceDir;
 import static com.github.eirslett.maven.plugins.frontend.mojo.MojoUtils.setSLF4jLogger;
 
 /**
@@ -33,23 +36,23 @@ public class FisMojo extends AbstractMojo {
     /**
      * fis arguments. Default is "release".
      */
-    @Parameter(defaultValue = "release", property = "arguments", required = true)
-    private String arguments;
+    @Parameter(defaultValue = "release", property = "fisArguments", required = true)
+    private String fisArguments;
 
     /**
      * The directory containing front end files that will be processed by grunt.
      * If this is set then files in the directory will be checked for
      * modifications before running grunt.
      */
-    @Parameter(property = "srcdir")
-    private File srcdir;
+    @Parameter(defaultValue = "${basedir}/src/main/webapp", property = "fisBase")
+    private File fisBase;
 
     /**
      * The directory where front end files will be output by grunt. If this is
      * set then they will be refreshed so they correctly show as modified in
      * Eclipse.
      */
-    @Parameter(property = "outputdir")
+    @Parameter(defaultValue = "${project.build.directory}/fis", property = "outputdir")
     private File outputdir;
 
     @Component
@@ -57,10 +60,11 @@ public class FisMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (!existsSourceDir(fisBase)) return;
         if (shouldExecute()) {
             try {
                 MojoUtils.setSLF4jLogger(getLog());
-                new FrontendPluginFactory(workingDirectory, null, Arrays.asList(arguments.split(" "))).getFisRunner().execute(arguments);
+                new FrontendPluginFactory(workingDirectory, null, fisBase).getFisRunner().execute(appendOutputDir());
             } catch (TaskRunnerException e) {
                 throw new MojoFailureException("Failed to run task", e);
             }
@@ -70,11 +74,23 @@ public class FisMojo extends AbstractMojo {
                 buildContext.refresh(outputdir);
             }
         } else {
-            getLog().info("Skipping grunt as no modified files in " + srcdir);
+            //getLog().info("Skipping grunt as no modified files in " + srcdir);
         }
     }
 
     private boolean shouldExecute() {
         return true;
+    }
+
+    /**
+     * 增加默认的输出目录
+     * 这里有一个bug，就是如果参数是和别的参数写在一起，是识别不出来的，比如 -od
+     * @return
+     */
+    private String appendOutputDir() {
+        if (fisArguments.contains("-d") || fisArguments.contains("--dest"))
+            return fisArguments;
+        else
+            return fisArguments + " --dest \"" + outputdir + "\"";
     }
 }

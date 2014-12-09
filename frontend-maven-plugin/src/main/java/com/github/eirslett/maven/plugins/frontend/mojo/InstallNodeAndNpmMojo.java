@@ -15,6 +15,8 @@ import com.github.eirslett.maven.plugins.frontend.lib.InstallationException;
 import com.github.eirslett.maven.plugins.frontend.lib.NodeAndNPMInstaller;
 import com.github.eirslett.maven.plugins.frontend.lib.ProxyConfig;
 
+import static com.github.eirslett.maven.plugins.frontend.mojo.MojoUtils.existsSourceDir;
+
 @Mojo(name="install-node-and-npm", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public final class InstallNodeAndNpmMojo extends AbstractMojo {
 
@@ -60,9 +62,13 @@ public final class InstallNodeAndNpmMojo extends AbstractMojo {
     @Parameter(property = "session", defaultValue = "${session}", readonly = true)
     private MavenSession session;
 
+    @Parameter(defaultValue = "${basedir}/src/main/webapp", property = "fisBase")
+    private File fisBase;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
+            if (!existsSourceDir(fisBase)) return;
             MojoUtils.setSLF4jLogger(getLog());
             ProxyConfig proxyConfig = MojoUtils.getProxyConfig(session);
             String nodeDownloadRoot = getNodeDownloadRoot();

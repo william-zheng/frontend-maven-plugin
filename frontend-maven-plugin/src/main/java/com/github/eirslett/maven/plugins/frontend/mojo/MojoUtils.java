@@ -7,6 +7,8 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.settings.Proxy;
 import org.slf4j.impl.StaticLoggerBinder;
 
+import java.io.File;
+
 class MojoUtils {
     static <E extends Throwable> MojoFailureException toMojoFailureException(E e){
         return new MojoFailureException(e.getMessage()+": "+e.getCause().getMessage(), e);
@@ -33,5 +35,9 @@ class MojoUtils {
                     mavenProxy.getUsername(),
                     mavenProxy.getPassword());
         }
+    }
+
+    static boolean existsSourceDir(File sourceDir) {
+        return sourceDir.isDirectory() && sourceDir.exists();
     }
 }

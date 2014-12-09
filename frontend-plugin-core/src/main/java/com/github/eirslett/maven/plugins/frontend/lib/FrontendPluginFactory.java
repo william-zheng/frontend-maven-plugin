@@ -7,7 +7,7 @@ public final class FrontendPluginFactory {
     private static final Platform defaultPlatform = Platform.guess();
     private final File workingDirectory;
     private final ProxyConfig proxy;
-    private final List<String> additionalArguments;
+    private final File fisBase;
 
     public FrontendPluginFactory(File workingDirectory){
         this(workingDirectory, null);
@@ -15,12 +15,11 @@ public final class FrontendPluginFactory {
     public FrontendPluginFactory(File workingDirectory, ProxyConfig proxy){
         this(workingDirectory, proxy, null);
     }
-    public FrontendPluginFactory(File workingDirectory, ProxyConfig proxy, List<String> additionalArguments){
+    public FrontendPluginFactory(File workingDirectory, ProxyConfig proxy, File fisBase){
         this.workingDirectory = workingDirectory;
         this.proxy = proxy;
-        this.additionalArguments = additionalArguments;
+        this.fisBase = fisBase;
     }
-
 
     public NodeAndNPMInstaller getNodeAndNPMInstaller(){
         return new DefaultNodeAndNPMInstaller(
@@ -47,6 +46,6 @@ public final class FrontendPluginFactory {
     }
 
     public FisRunner getFisRunner() {
-        return new DefaultFisRunner(defaultPlatform, workingDirectory, additionalArguments);
+        return new DefaultFisRunner(defaultPlatform, workingDirectory, fisBase);
     }
 }
